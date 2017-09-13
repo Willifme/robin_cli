@@ -13,6 +13,8 @@ fn main() {
         match readline {
             Ok(line) => {
                 println!("{:?}", number::numeric_literals(line.as_bytes()));
+
+                rl.add_history_entry(&line);
             },
 
             Err(_) => break, 
