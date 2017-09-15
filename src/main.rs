@@ -17,14 +17,16 @@ fn main() {
                     ParseResult::Done(expr) => println!("{:?}", expr),
                     ParseResult::Error(err, ref expr) => {
                         // TODO: Remove this unwrap
-                        println!("Error: {}, Expression: {:?}", str::from_utf8(err).unwrap(), &expr);
+                        println!("Error: {}, Expression: {:?}",
+                                 str::from_utf8(err).unwrap(),
+                                 &expr);
                     }
                 }
 
                 rl.add_history_entry(&line);
-            },
+            }
 
-            Err(_) => break, 
+            Err(_) => break,
         }
     }
 }
