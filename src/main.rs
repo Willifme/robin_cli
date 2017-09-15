@@ -12,7 +12,10 @@ struct Repl {
 
 impl Repl {
     fn new() -> Repl {
-        Repl { editor: Editor::<()>::new(), error_stack: vec![] }
+        Repl {
+            editor: Editor::<()>::new(),
+            error_stack: vec![],
+        }
     }
 
     fn repl(&mut self) {
@@ -21,13 +24,7 @@ impl Repl {
 
             match readline {
                 Ok(line) => {
-                    match parse_expression(line.as_bytes()) {
-                        ParseResult::Done(expr) => println!("{:?}", expr),
-                        ParseResult::Error(_, _) => {
-                            // TODO: Remove this unwrap
-                            self.error_stack.push((error::ErrorLevel::Error, "Parse error"));
-                        }
-                    }
+                    self.parse(&line);
 
                     self.editor.add_history_entry(&line);
                 }
@@ -36,16 +33,23 @@ impl Repl {
             }
         }
     }
+
+    fn parse(&mut self, line: &String) {
+        match parse_expression(line.as_bytes()) {
+            ParseResult::Done(expr) => println!("{:?}", expr),
+            ParseResult::Error(_, _) => {
+                // TODO: Remove this unwrap
+                self.error_stack
+                    .push((error::ErrorLevel::Error, "Parse error"));
+
+                // TODO: Remove unwrap
+                println!("{:?}", self.error_stack.last().unwrap());
+            }
+        }
+    }
 }
 fn main() {
     let mut repl = Repl::new();
 
     repl.repl();
-
-    // TODO: Implement display for the error stack
-    if !repl.error_stack.is_empty() {
-        for error in repl.error_stack {
-            println!("{:?}", error);
-        }
-    }
 }
