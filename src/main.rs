@@ -14,7 +14,7 @@ impl Repl {
     fn new() -> Repl {
         Repl {
             editor: Editor::<()>::new(),
-            error_stack: vec![],
+            error_stack: error::ErrorStack(vec![]),
         }
     }
 
@@ -40,10 +40,10 @@ impl Repl {
             ParseResult::Error(_, _) => {
                 // TODO: Remove this unwrap
                 self.error_stack
-                    .push((error::ErrorLevel::Error, "Parse error"));
+                    .0.push(error::Error((error::ErrorLevel::Error, "Parse error")));
 
                 // TODO: Remove unwrap
-                println!("{:?}", self.error_stack.last().unwrap());
+                println!("{}", self.error_stack);
             }
         }
     }
