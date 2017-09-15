@@ -2,7 +2,7 @@ extern crate rustyline;
 extern crate robin_core;
 
 use rustyline::Editor;
-use robin_core::parser::number;
+use robin_core::parser::expression;
 
 fn main() {
     let mut rl = Editor::<()>::new();
@@ -12,7 +12,7 @@ fn main() {
 
         match readline {
             Ok(line) => {
-                println!("{:?}", number::numeric_literals(line.as_bytes()));
+                println!("{:?}", expression::expression_literal(line.as_bytes()));
 
                 rl.add_history_entry(&line);
             },
