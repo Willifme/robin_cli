@@ -34,16 +34,17 @@ impl Repl {
         }
     }
 
-    fn parse(&mut self, line: &String) {
+    fn parse(&mut self, line: &str) {
         match parse_expression(line.as_bytes()) {
             ParseResult::Done(expr) => println!("{:?}", expr),
             ParseResult::Error(_, _) => {
                 // TODO: Remove this unwrap
                 self.error_stack
-                    .0.push(error::Error((error::ErrorLevel::Error, "Parse error")));
+                    .0
+                    .push(error::Error((error::ErrorLevel::Error, "Parse error")));
 
                 // TODO: Remove unwrap
-                println!("{}", self.error_stack);
+                println!("{}", self.error_stack.0.last().unwrap());
             }
         }
     }
