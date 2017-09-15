@@ -3,30 +3,49 @@ extern crate robin_core;
 
 use rustyline::Editor;
 use robin_core::parser::expression::{ParseResult, parse_expression};
-use std::str;
+use robin_core::error;
 
-fn main() {
-    let mut rl = Editor::<()>::new();
+struct Repl {
+    editor: Editor<()>,
+    error_stack: error::ErrorStack,
+}
 
-    loop {
-        let readline = rl.readline(">>> ");
+impl Repl {
+    fn new() -> Repl {
+        Repl { editor: Editor::<()>::new(), error_stack: vec![] }
+    }
 
-        match readline {
-            Ok(line) => {
-                match parse_expression(line.as_bytes()) {
-                    ParseResult::Done(expr) => println!("{:?}", expr),
-                    ParseResult::Error(err, ref expr) => {
-                        // TODO: Remove this unwrap
-                        println!("Error: {}, Expression: {:?}",
-                                 str::from_utf8(err).unwrap(),
-                                 &expr);
+    fn repl(&mut self) {
+        loop {
+            let readline = self.editor.readline(">>> ");
+
+            match readline {
+                Ok(line) => {
+                    match parse_expression(line.as_bytes()) {
+                        ParseResult::Done(expr) => println!("{:?}", expr),
+                        ParseResult::Error(_, _) => {
+                            // TODO: Remove this unwrap
+                            self.error_stack.push((error::ErrorLevel::Error, "Parse error"));
+                        }
                     }
+
+                    self.editor.add_history_entry(&line);
                 }
 
-                rl.add_history_entry(&line);
+                Err(_) => break,
             }
+        }
+    }
+}
+fn main() {
+    let mut repl = Repl::new();
 
-            Err(_) => break,
+    repl.repl();
+
+    // TODO: Implement display for the error stack
+    if !repl.error_stack.is_empty() {
+        for error in repl.error_stack {
+            println!("{:?}", error);
         }
     }
 }
