@@ -2,7 +2,7 @@ extern crate rustyline;
 extern crate robin_core;
 
 use rustyline::Editor;
-use robin_core::parser::expression::{ParseResult, parse_expression};
+use robin_core::parser;
 use robin_core::error;
 
 struct Repl {
@@ -24,24 +24,24 @@ impl Repl {
 
             match readline {
                 Ok(line) => {
-                    self.parse(&line);
+                    self.parse(line.clone());
 
                     self.editor.add_history_entry(&line);
                 }
 
-                Err(_) => break,
+                Err(_) => break, 
             }
         }
     }
 
-    fn parse(&mut self, line: &str) {
-        match parse_expression(line.as_bytes()) {
-            ParseResult::Done(expr) => println!("{:?}", expr),
-            ParseResult::Error(_, _) => {
+    fn parse(&mut self, line: String) {
+        match parser::parse(line) {
+            Ok(expr) => println!("{:?}", expr),
+            Err(e) => {
                 // TODO: Remove this unwrap
                 self.error_stack
                     .0
-                    .push(error::Error((error::ErrorLevel::Error, "Parse error")));
+                    .push(error::Error((error::ErrorLevel::Error, e)));
 
                 // TODO: Remove unwrap
                 println!("{}", self.error_stack.0.last().unwrap());
