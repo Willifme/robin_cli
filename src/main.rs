@@ -4,6 +4,7 @@ extern crate robin_core;
 use rustyline::Editor;
 use robin_core::parser;
 use robin_core::error;
+use robin_core::to_javascript::ToJavaScript;
 
 struct Repl {
     editor: Editor<()>,
@@ -24,7 +25,7 @@ impl Repl {
 
             match readline {
                 Ok(line) => {
-                    self.parse(line.clone());
+                    self.parse(&line);
 
                     self.editor.add_history_entry(&line);
                 }
@@ -34,9 +35,9 @@ impl Repl {
         }
     }
 
-    fn parse(&mut self, line: String) {
+    fn parse(&mut self, line: &str) {
         match parser::parse(line) {
-            Ok(expr) => println!("{:?}", expr),
+            Ok(expr) => { println!("{:?}", expr); println!("{}", expr.eval())},
             Err(e) => {
                 // TODO: Remove this unwrap
                 self.error_stack
